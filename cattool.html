@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CAT</title>
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<style type="text/css">
+	.tsl-grid{
+		border: 1px;
+		border-style: solid;
+	}
+	.bg-purple-dark {
+    	background: #99a9bf;
+    	height: 40px;
+  	}
+  	#ob{
+		
+  	}
+  	.ob-nav{
+  		height: 40px;
+  	}
+  	.el-header{
+    	background-color: #545c64;
+    	text-align: center;
+    	line-height: 60px;
+  	}
+  
+  	.el-aside {
+    	background-color: #D3DCE6;
+    	color: #333;
+    	text-align: center;
+    	line-height: 30px;
+  	}
+  
+  	.el-main {
+    	background-color: #E9EEF3;
+    	padding: 0;
+    	color: #333;
+    	text-align: center;
+    	line-height: 30px;
+  	}
+  
+</style>
+<body style="margin:0">
+<el-container id="con">
+<!--头部导航栏及登陆按钮-->
+<el-header style="padding: 0">
+<el-row>
+<el-col :span="16">
+<!--导航栏-->
+<el-menu
+    :default-active="2"
+    class="el-menu-demo"
+    mode="horizontal"
+    background-color="#545c64"
+    text-color="#fff"
+    active-text-color="#ffd04b">
+    <el-menu-item :index="1">主页</el-menu-item>
+    <el-menu-item :index="2">翻译界面</el-menu-item>
+    <el-submenu index="3">
+      <template slot="title">语料资源</template>
+      <el-menu-item index="3-1">术语管理</el-menu-item>
+      <el-menu-item index="3-2">翻译记忆</el-menu-item>
+    </el-submenu>
+</el-menu>
+</el-col>
+<!-- 文本上传 -->
+<el-col :span="4">
+	<div>
+   		<el-button icon="el-icon-upload el-icon--right" @click="dialogUploadVisible = true">上传文本</el-button>
+
+   		<el-dialog title="文本上传" 
+   			:visible.sync="dialogUploadVisible"
+   			:before-close="handleClose"
+   		>
+        <el-input
+          type="textarea"
+          v-model="text"
+          :autosize="{minRows: 10, maxRows: 10}"
+          placeholder="将文本粘贴至此处"
+          @keyup.17.enter="UploadText"
+          >
+        </el-input>
+        <el-dropdown>
+          <el-button type="primary">
+            {{field}}<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>文学</el-dropdown-item>
+            <el-dropdown-item divided>经济</el-dropdown-item>
+            <el-dropdown-item divided>科技</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-button
+          size="small"
+          @click="UploadText"
+        >
+          完成<i></i>
+        </el-button>
+   		</el-dialog>
+	</div>
+</el-col>
+<!-- 登陆注册 -->
+<el-col :span="4">
+	<div>
+    	<template>
+   			<el-button type="primary" round @click="dialogSignInVisible = true">登陆</el-button>
+   			<el-button type="primary" round @click="dialogSignUpVisible = true">注册</el-button>
+
+        <el-dialog
+          :visible.sync="dialogSignInVisible"
+        >
+          <el-tabs type="border-card">
+            <el-tab-pane label="登陆"></el-tab-pane>
+            <el-tab-pane label="注册">注册</el-tab-pane>
+          </el-tab>
+        </el-dialog>
+    	</template>
+	</div>
+</el-col>
+</el-row>
+</el-header>
+<el-container>
+<!-- 左侧翻译框 -->
+<el-main width="70%">
+	<el-table width="70%" border :data="tslData" height="720px" highlight-current-row="true">
+		<el-table-column prop="zh_CN" label="中文"></el-table-column>
+		<el-table-column prop="en_US" label="英文">
+			<template slot-scope="bilin">
+				<el-input
+          :autosize="{minRows: 2, maxRows: 8}"
+          placeholder="待翻译"
+          type="textarea"
+          v-model="translatEn[bilin.$index]"
+          ref="inputItem"
+          @focus="mtTranslat(bilin.row)"
+          @keyup.ctrl.39.native="autoFill(bilin)"
+          @keyup.ctrl.37.native="deleteFill(bilin)"
+          @keyup.ctrl.enter.native="changeLine(bilin)"
+        >
+        </el-input>
+			</template>
+		</el-table-column>
+		<el-table-column label="操作" width="100" fixed="right">
+			<template slot-scope="bilin">
+        		<el-button type="text" size="small" icon="el-icon-caret-right" @click="autoFill(bilin)"></el-button>
+        		<el-button type="text" size="small" icon="el-icon-check"></el-button>
+        		<el-button type="text" size="small" icon="el-icon-delete" @click="deleteFill(bilin)"></el-button>
+      </template>
+		</el-table-column>
+	</el-table>
+</el-main>
+<!--右侧边栏-->
+<el-aside width="30%">
+	<!--面包屑，每一个标签对应一个table-->
+	<el-tabs type="border-card">
+  		<el-tab-pane label="该文本的术语">
+			<el-table :data="wordList" height="400px" border>
+				<el-table-column prop="tb1zH" label="中文" width="200" height="100px"></el-table-column>
+				<el-table-column prop="tb1eN" label="英文" width="200" height="100px"></el-table-column>
+        		<el-table-column prop="tb1oP" label="操作" height="100px" fixed="right">
+        			<template slot-scope="scope">
+        				<el-button type="text" size="small" icon="el-icon-check" @click=""></el-button>
+        				<el-button type="text" size="small" icon="el-icon-delete"></el-button>
+        			</template>
+        		</el-table-column>
+			</el-table>
+  		</el-tab-pane>
+  		<el-tab-pane label="翻译记忆">
+			<el-table :data="corpus" height="400px" border>
+				<el-table-column prop="tb2zH" label="中文" width="200" height="100px"></el-table-column>
+				<el-table-column prop="tb2eN" label="英文" width="200" height="100px"></el-table-column>
+        <el-table-column prop="tb2Per" label="匹配度" width="200" height="100px"></el-table-column>
+        		<el-table-column prop="tb1oP" label="操作" height="100px" fixed="right">
+        			<template slot-scope="scope">
+        				<el-button type="text" size="small" icon="el-icon-check"></el-button>
+        				<el-button type="text" size="small" icon="el-icon-delete"></el-button>
+        			</template>
+        		</el-table-column>
+			</el-table>
+  		</el-tab-pane>
+  		<el-tab-pane label="其他术语">
+			<el-table height="400px" border>
+				<el-table-column prop="tb1zH" label="中文" width="200" height="100px"></el-table-column>
+				<el-table-column prop="tb1eN" label="英文" width="200" height="100px"></el-table-column>
+        		<el-table-column prop="tb1oP" label="操作" height="100px" fixed="right">
+        			<template slot-scope="scope">
+        				<el-button type="text" size="small" icon="el-icon-check"></el-button>
+        				<el-button type="text" size="small" icon="el-icon-delete"></el-button>
+        			</template>
+        		</el-table-column>
+			</el-table>
+  		</el-tab-pane>
+	</el-tabs>
+	<!--机翻小窗-->
+	<el-table height="250px" border :data="mtSource">
+		<el-table-column prop="mt_zh" label="原文" width="200px"></el-table-column>
+		<el-table-column prop="mt_en" label="机器翻译" width="254px" fixed="right"></el-table-column>
+	</el-table>
+</el-aside>
+</el-container>
+</el-container>
+</body>
+<!-- import Vue before Element -->
+<script src="./import/vue2517.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="./import/baiduapi.js"></script>
+<script src="./import/md5.js"></script>
+<script src="./import/element-ui249.js"></script>
+<script>
+var dst = "";
+	var con = new Vue({
+		el: "#con",
+		data:{
+			tslData: [],
+      translatEn: [],
+      mtSource: [],
+      wordList: [],
+      corpus: [],
+			dialogUploadVisible: false,
+      dialogSignInVisible: false,
+      dialogSignUpVisible: false,
+      text: null,
+      zhCNData: null,
+      focusLine: 0,
+      field: "选择领域",
+		},
+		computed:{
+      dialogSign: function(){
+        return (dialogSignInVisible || dialogSignUpVisible);
+      },
+		},
+		methods:{
+			handleClose(done){
+				this.$confirm('确认关闭？')
+          		.then(_ => {
+            		done();
+          		})
+          		.catch(_ => {});
+			},
+      UploadText: function(){
+        axios.get("./backend/handleFile.php?text="+con.text).
+        then(function(response){
+          /*百度翻译接口参数*/
+          var appid = '20181030000227249';
+          var key = 'oxQ_iLno1oh4hecYBWnX';
+          var salt = (new Date).getTime();
+          var from = 'zh';
+          var to = 'en';
+
+          con.tslData = [];
+          var res = response.data;
+          len = res.length;
+          for (var i = 0; i < len; i++){
+            //con.tslData.push({zh_CN: res[i], en_US: ""});
+            var query = res[i];
+
+            var str1 = appid + query + salt +key;
+            var sign = MD5(str1);
+            $.ajax({
+                url: 'http://api.fanyi.baidu.com/api/trans/vip/translate',
+                type: 'get',
+                dataType: 'jsonp',
+                data: {
+                    q: query,
+                    appid: appid,
+                    salt: salt,
+                    from: from,
+                    to: to,
+                    sign: sign
+                },
+                success: function (data) {
+                    dst = data.trans_result[0];
+                    console.log(dst);
+                    con.tslData.push({zh_CN: data.trans_result[0].src, en_US: data.trans_result[0].dst});
+                    con.translatEn.push("");
+                } 
+            });
+            con.dialogUploadVisible = false;
+          }
+        })
+        axios.get("./backend/getWordList.php?wordList="+con.text).
+        then(function(response){
+          /*百度翻译接口参数*/
+          var appid = '20181030000227249';
+          var key = 'oxQ_iLno1oh4hecYBWnX';
+          var salt = (new Date).getTime();
+          var from = 'zh';
+          var to = 'en';
+
+          con.wordList = [];
+          var res = response.data;
+          len = res.items.length;
+          for (var i = 0; i < len; i++){
+            //con.tslData.push({zh_CN: res[i], en_US: ""});
+            var query = res.items[i].item;
+
+            var str1 = appid + query + salt +key;
+            var sign = MD5(str1);
+            $.ajax({
+                url: 'http://api.fanyi.baidu.com/api/trans/vip/translate',
+                type: 'get',
+                dataType: 'jsonp',
+                data: {
+                    q: query,
+                    appid: appid,
+                    salt: salt,
+                    from: from,
+                    to: to,
+                    sign: sign
+                },
+                success: function (data) {
+                    con.wordList.push({tb1zH: data.trans_result[0].src, tb1eN: data.trans_result[0].dst});
+                } 
+            });
+          }
+        })
+      },
+      mtTranslat: function(x){
+        con.mtSource = [];
+        con.corpus = [];
+        //alert(x.en_US);
+        con.mtSource.push({mt_en: x.en_US, mt_zh: x.zh_CN});
+        axios.get("./backend/server.php?text="+x.zh_CN).
+        then(function(response){
+          len = response.data.length;
+          //alert(len);
+          for (var i = 0; i < len; ++i){
+            con.corpus.push({tb2zH: response.data[i][0], tb2eN: response.data[i][1], tb2Per: response.data[i][2]});
+          }
+        });
+      },
+      autoFill: function(x){
+        con.$set(con.translatEn, x.$index, x.row.en_US);
+      },
+      deleteFill: function(x){
+        con.$set(con.translatEn, x.$index, "");
+      },
+      changeLine: function(x){
+      }
+		},
+	})
+</script>
+
+</html>

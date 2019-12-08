@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CAT</title>
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<style type="text/css">
+	.tsl-grid{
+		border: 1px;
+		border-style: solid;
+	}
+	.bg-purple-dark {
+    	background: #99a9bf;
+    	height: 40px;
+  	}
+  	#ob{
+		
+  	}
+  	.ob-nav{
+  		height: 40px;
+  	}
+  	.el-header{
+    	background-color: #545c64;
+    	text-align: center;
+    	line-height: 60px;
+  	}
+  
+  	.el-aside {
+    	background-color: #D3DCE6;
+    	color: #333;
+    	text-align: center;
+    	line-height: 30px;
+  	}
+  
+  	.el-main {
+    	background-color: #E9EEF3;
+    	padding: 0;
+    	color: #333;
+    	text-align: left;
+    	line-height: 30px;
+  	}
+
+</style>
+<body style="margin:0">
+<el-container id="con">
+<el-header style="padding: 0">
+<!--头部导航栏及登陆按钮-->
+<el-row>
+<el-col :span="20">
+<!--导航栏-->
+<el-menu
+    :default-active="3-1"
+    class="el-menu-demo"
+    mode="horizontal"
+    background-color="#545c64"
+    text-color="#fff"
+    active-text-color="#ffd04b">
+    <el-menu-item :index="1">主页</el-menu-item>
+    <el-menu-item index="2">翻译界面</el-menu-item>
+    <el-submenu :index="3">
+      <template slot="title">语料资源</template>
+      <el-menu-item :index="3-1">术语管理</el-menu-item>
+      <el-menu-item index="3-2">翻译记忆</el-menu-item>
+    </el-submenu>
+</el-menu>
+</el-col>
+<el-col :span="4">
+	<div>
+    	<template>
+   			<el-button type="primary" round>登陆</el-button>
+   			<el-button type="primary" round>注册</el-button>
+    	</template>
+	</div>
+</el-col>
+</el-row>
+</el-header>
+<!--主体-->
+<el-main>
+	<!--上部：术语库列表和机器翻译的部分-->
+	<el-row>
+		<el-col :span="12">
+			<el-table
+				border
+				height="200px"
+				style="width: 100%"
+			>
+				<el-table-column
+					prop="tbName"
+					label="术语库"
+				>
+				</el-table-column>
+				<el-table-column
+					fixed="right"
+					label="操作"
+					width="100px"
+				>
+					<template slot-scope="tbOp">
+						<el-button type="text" size="small">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-col>
+		<el-col :span="12">
+			<el-table
+				border
+				height="200px"
+				style="width: 100%"
+			>
+				<el-table-column
+					label="原文"
+					prop="tbSource">
+				</el-table-column>
+			</el-table>
+		</el-col>
+	</el-row>
+	<!--下部：术语编辑-->
+	<el-row>
+		<el-table
+			border
+			height="400px"
+		>
+			<el-table-column
+				prop="termBaseEn"
+				label="英文"
+				width="400px"
+			>
+			</el-table-column>
+			<el-table-column
+				prop="termBaseZh"
+				label="中文"
+			>
+			</el-table-column>
+			<el-table-column
+				fixed="right"
+				width="100px"
+				label="操作"
+			>
+				<template slot-scope="tbOp">
+					<el-button type="text" size="small">确认</el-button>
+					<el-button type="text" size="small">删除</el-button>
+				</template>
+			</el-table-column>
+		</el-table>
+	</el-row>
+</el-main>
+</el-container>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+	var con = new Vue({
+		el: "#con",
+		data:{
+			tslData: [{
+				zh_CN: "中国",
+			}]
+		},
+		computed: {
+
+		}
+	})
+</script>
+
+</html>

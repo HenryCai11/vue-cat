@@ -1,24 +1,23 @@
 <template>
   <div id="app">
-    <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
-    </div>
+    <nav-header></nav-header>
   </div>
 </template>
 
 <script>
+import NavHeader from "./components/NavHeader"
 
 export default {
   name: 'app',
   components: {
+    NavHeader
   }
 }
 </script>
 
 <style>
+*{
+  padding: 0;
+  margin: 0;
+}
 </style>

@@ -24,9 +24,5 @@ export default {
 </script>
 
 <style scoped>
-.el-header{
-  background-color: #545c64;
-  text-align: center;
-  line-height: 60px;
-}
+
 </style>

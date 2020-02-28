@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import NavHeader from "./components/NavHeader"
+import NavHeader from "./components/navheader/src/NavHeader"
 
 export default {
   name: 'app',

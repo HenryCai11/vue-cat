@@ -28,3 +28,14 @@
     </el-dialog>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'NavUpload',
+
+}
+</script>
+
+<style scoped>
+
+</style>>

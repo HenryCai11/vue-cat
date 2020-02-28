@@ -14,6 +14,8 @@ NavLogin.install = Vue => {
   Vue.component(NavLogin.name, NavLogin);
 }
 
-export default NavMenu;
-export default NavUpload;
-export default NavLogin;
+export default {
+  NavMenu,
+  NavUpload,
+  NavLogin
+}
